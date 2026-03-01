@@ -28,18 +28,19 @@ else
     RC_FILE="$HOME/.profile"
 fi
 
-if ! grep -q "$CLI_BIN serve --hook" "$RC_FILE"; then
-    echo "🔗 Adding BiteCLI hook to $RC_FILE..."
+if ! grep -q "BITECLI" "$RC_FILE" 2>/dev/null; then
+    echo "🔗 Adding BiteCLI to PATH and shell hook in $RC_FILE..."
     echo "" >> "$RC_FILE"
-    echo "# BiteCLI Terminal Hook" >> "$RC_FILE"
+    echo "# BiteCLI" >> "$RC_FILE"
+    echo "export PATH=\"$VENV_DIR/bin:\$PATH\"" >> "$RC_FILE"
     echo "$CLI_BIN serve --hook" >> "$RC_FILE"
 else
-    echo "✅ BiteCLI hook already exists in $RC_FILE."
+    echo "✅ BiteCLI already configured in $RC_FILE."
 fi
 
-# 3. Add to cron for automatic background fetching (Daily at 10 AM)
-# You can change the '0 10 * * *' to '0 0 * * 0' for weekly.
-CRON_CMD="0 10 * * * $CLI_BIN fetch >/dev/null 2>&1"
+# 3. Add to cron for automatic background fetching (Every Monday at 10 AM)
+# You can change the '0 10 * * 1' to '0 10 * * *' for daily.
+CRON_CMD="0 10 * * 1 $CLI_BIN fetch >/dev/null 2>&1"
 
 # Check if it's already in crontab
 if crontab -l 2>/dev/null | grep -q "$CLI_BIN fetch"; then
@@ -47,10 +48,9 @@ if crontab -l 2>/dev/null | grep -q "$CLI_BIN fetch"; then
 else
     if ! (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab - ; then
         echo "⚠️ Could not set up cron job automatically (permissions issues)."
-        echo "   Please run this command manually to configure the daily auto-fetch:"
+        echo "   Please run this command manually to configure the weekly auto-fetch:"
         echo "   (crontab -l 2>/dev/null; echo \"$CRON_CMD\") | crontab -"
     fi
-    echo "   (To change the schedule to weekly, run 'crontab -e' and change '0 10 * * *' to '0 0 * * 0')"
 fi
 
 # 4. Perform the initial layout and fetch

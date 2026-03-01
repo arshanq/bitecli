@@ -6,10 +6,15 @@ CONFIG_DIR = os.environ.get("BITECLI_CONFIG_DIR", os.path.expanduser("~/.config/
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 
 DEFAULT_FEEDS = [
-    {"name": "Berkeley AIR", "url": "https://bair.berkeley.edu/blog/feed.xml"},
-    {"name": "OpenAI Blog", "url": "https://openai.com/blog/rss.xml"},
-    {"name": "GitHub Engineering", "url": "https://github.blog/category/engineering/feed/"},
+    # Research
+    {"name": "Berkeley AIR", "url": "https://bair.berkeley.edu/blog/feed.xml", "type": "research"},
+    {"name": "arXiv CS.AI", "url": "https://arxiv.org/rss/cs.AI", "type": "research"},
+    {"name": "arXiv CS.LG", "url": "https://arxiv.org/rss/cs.LG", "type": "research"},
+    {"name": "Papers with Code", "url": "https://paperswithcode.com/rss.xml", "type": "research"},
+    # Engineering blogs
     {"name": "Netflix Tech", "url": "https://netflixtechblog.com/feed"},
+    {"name": "Facebook Engineering", "url": "https://engineering.fb.com/feed/"},
+    {"name": "GitHub Engineering", "url": "https://github.blog/category/engineering/feed/"},
 ]
 
 DEFAULT_CONFIG = {

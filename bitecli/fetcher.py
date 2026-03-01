@@ -18,7 +18,7 @@ def fetch_feeds(console=None) -> int:
             parsed = feedparser.parse(feed["url"])
             if not parsed.entries:
                 continue
-                
+
             for entry in parsed.entries:
                 # Basic metadata extraction depending on RSS/Atom variants
                 title = entry.get("title", "No Title")

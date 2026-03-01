@@ -22,7 +22,7 @@ def print_header():
 
 def do_fetch():
     with console.status("[bold green]Fetching latest educational content...[/]"):
-        count = fetcher.fetch_feeds()
+        count = fetcher.fetch_feeds(console=console)
     if count > 0:
         console.print(f"[bold green]Success![/] Fetched {count} new article(s).")
     else:
@@ -84,6 +84,17 @@ def do_config(args):
         console.print("\nTo update provider: `bitecli config --provider <gemini|openai|claude|perplexity>`")
         console.print("To set API key: `bitecli config --key <YOUR_KEY>`")
 
+def do_clean(args):
+    if args.all:
+        count = db.delete_all_articles()
+        console.print(f"[green]Cleared {count} article(s) from the cache.[/]")
+    else:
+        count = db.delete_read_articles()
+        if count:
+            console.print(f"[green]Removed {count} already-read article(s) from the cache.[/]")
+        else:
+            console.print("[yellow]Nothing to clean — no read articles in cache.[/]")
+
 def do_hook():
     shell = os.environ.get('SHELL', '')
     rc_file = ""
@@ -121,6 +132,10 @@ def main():
     config_parser.add_argument("--provider", choices=["gemini", "openai", "claude", "perplexity"], help="Set the LLM provider")
     config_parser.add_argument("--key", help="Set the API key for the current or specified provider")
     
+    # clean
+    clean_parser = subparsers.add_parser("clean", help="Remove cached articles")
+    clean_parser.add_argument("--all", action="store_true", help="Remove all articles, not just read ones")
+
     # hook
     subparsers.add_parser("hook", help="Show instructions to install shell hook")
     
@@ -134,6 +149,8 @@ def main():
             do_serve()
         elif args.command == "config":
             do_config(args)
+        elif args.command == "clean":
+            do_clean(args)
         elif args.command == "hook":
             do_hook()
     except Exception as e:

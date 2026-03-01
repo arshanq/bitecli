@@ -32,20 +32,34 @@ else
     RC_FILE="$HOME/.profile"
 fi
 
-if grep -q "bitecli serve --hook" "$RC_FILE" 2>/dev/null; then
-    echo "🗑️ Removing BiteCLI hook from $RC_FILE..."
-    grep -v "# BiteCLI Terminal Hook" "$RC_FILE" | grep -v "bitecli serve --hook" > "${RC_FILE}.tmp" && mv "${RC_FILE}.tmp" "$RC_FILE"
-    echo "✅ Hook removed."
+if grep -q "BITECLI\|bitecli serve --hook" "$RC_FILE" 2>/dev/null; then
+    echo "🗑️ Removing BiteCLI entries from $RC_FILE..."
+    grep -v "# BiteCLI" "$RC_FILE" | grep -v "bitecli" > "${RC_FILE}.tmp" && mv "${RC_FILE}.tmp" "$RC_FILE"
+    echo "✅ BiteCLI entries removed."
 else
-    echo "✅ No hook found in $RC_FILE."
+    echo "✅ No BiteCLI entries found in $RC_FILE."
+fi
+
+# 4. Remove global pip/pipx install if present
+BITECLI_CMD=$(command -v bitecli 2>/dev/null || true)
+if [ -n "$BITECLI_CMD" ]; then
+    echo "🗑️ Found 'bitecli' at $BITECLI_CMD. Attempting to remove..."
+    REMOVED=false
+
+    if command -v pipx &> /dev/null && pipx list 2>/dev/null | grep -q "bitecli"; then
+        pipx uninstall bitecli && REMOVED=true
+    fi
+
+    if [ "$REMOVED" = false ] && pip uninstall -y bitecli 2>/dev/null; then
+        REMOVED=true
+    fi
+
+    if [ "$REMOVED" = true ]; then
+        echo "✅ Global 'bitecli' package removed."
+    else
+        echo "⚠️  Could not auto-remove 'bitecli'. Run manually: pip uninstall -y bitecli"
+    fi
 fi
 
 echo ""
 echo "🎉 Uninstallation Complete. All files, cache, cron jobs, and terminal hooks have been deleted."
-
-if command -v bitecli &> /dev/null; then
-    echo ""
-    echo "⚠️ WARNING: The 'bitecli' command is still available in your terminal."
-    echo "   This usually means you manually installed it globally with pip or pipx."
-    echo "   To completely remove it, run: pip uninstall -y bitecli"
-fi

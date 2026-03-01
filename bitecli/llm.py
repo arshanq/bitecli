@@ -1,7 +1,27 @@
 import requests
 import json
+from datetime import datetime, timezone, timedelta
+from email.utils import parsedate_to_datetime
 from . import config
 from . import db
+
+_TWO_WEEKS = timedelta(weeks=2)
+
+def _is_too_old_for_summary(article: dict, unfiltered_feed_names: set) -> bool:
+    """Returns True if the article is older than 2 weeks and not from a research or documentation feed."""
+    if article.get('feed_name') in unfiltered_feed_names:
+        return False
+    published = article.get('published', '')
+    if not published:
+        return False
+    try:
+        published_dt = parsedate_to_datetime(published)
+    except Exception:
+        try:
+            published_dt = datetime.fromisoformat(published.replace('Z', '+00:00'))
+        except Exception:
+            return False
+    return (datetime.now(tz=timezone.utc) - published_dt) > _TWO_WEEKS
 
 SYSTEM_PROMPT = """You are an expert technical educator. 
 Summarize the provided technical article or research topic into a short, 'bite-sized' educational markdown lesson that is visually appealing and easy to read on a terminal.
@@ -49,8 +69,14 @@ def fill_summary_buffer(console=None, force=False):
         return 0
         
     needed = limit - buffered
-    articles_to_summarize = db.get_unsummarized_articles(needed)
-    
+    unfiltered_feed_names = {f['name'] for f in config.get_feeds() if f.get('type') in ('research', 'documentation')}
+    # Fetch extra candidates to account for articles filtered out by age
+    candidates = db.get_unsummarized_articles(needed * 3)
+    articles_to_summarize = [
+        a for a in candidates
+        if not _is_too_old_for_summary(a, unfiltered_feed_names)
+    ][:needed]
+
     if not articles_to_summarize:
         return 0
         

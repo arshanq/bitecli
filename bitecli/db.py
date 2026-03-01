@@ -127,6 +127,27 @@ def mark_as_read(article_id: str):
     conn.commit()
     conn.close()
 
+def delete_read_articles() -> int:
+    """Deletes all read articles. Returns the number of rows deleted."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM articles WHERE is_read = 1')
+    deleted = cursor.rowcount
+    conn.commit()
+    conn.close()
+    return deleted
+
+def delete_all_articles() -> int:
+    """Deletes all articles. Returns the number of rows deleted."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT COUNT(*) FROM articles')
+    total = cursor.fetchone()[0]
+    cursor.execute('DELETE FROM articles')
+    conn.commit()
+    conn.close()
+    return total
+
 def get_stats() -> Dict[str, int]:
     """Returns counts of total, read, unread, buffered articles."""
     conn = get_connection()
