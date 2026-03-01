@@ -7,23 +7,20 @@ BiteCLI is a beautifully crafted command-line tool that brings bite-sized educat
 
 ## Installation
 
-You can install BiteCLI globally using `pipx` (recommended) or in your system python:
+The easiest way to install, configure background updates, and wire it into your terminal is using the 1-click installer:
 
 ```bash
-# Recommended: Install using pipx to avoid dependency conflicts
-pipx install .
-
-# Alternative: Install using pip globally or in a virtualenv
-pip install .
+chmod +x install.sh
+./install.sh
 ```
 
-If you don't have python setup or prefer a virtual environment, you can run:
+**What the installer does:**
+1. Creates a dedicated, isolated Python virtual environment in `~/.bitecli/venv`.
+2. Adds `bitecli serve --hook` to your `~/.zshrc` or `~/.bashrc` automatically.
+3. Sets up a daily background `cron` job to fetch new articles without slowing down your terminal.
+4. Performs the initial fetch immediately.
 
-```bash
-python -m venv venv
-source venv/bin/activate
-pip install -e .
-```
+*(If you prefer manual setup, you can still install via `pip install .` and configure hooks/cron yourself).*
 
 ## Configuration (API Keys & Providers)
 
