@@ -20,7 +20,8 @@ DEFAULT_CONFIG = {
         "claude": "",
         "perplexity": ""
     },
-    "feeds": DEFAULT_FEEDS
+    "feeds": DEFAULT_FEEDS,
+    "max_buffered_summaries": 7
 }
 
 def load_config() -> Dict[str, Any]:

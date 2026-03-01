@@ -44,12 +44,12 @@ def do_serve():
         
     print_header()
     
-    with console.status(f"[bold cyan]Summarizing '{article['title']}' using {config.load_config().get('llm_provider', 'gemini').title()}...[/]"):
-        summary = llm.generate_summary(
-            article_title=article['title'],
-            article_content=article['content'],
-            article_url=article['url']
-        )
+    # We now fetch the pre-computed summary
+    summary = article.get('summary')
+    if not summary:
+        console.print("[red]Error:[/] The background summarizer hasn't prepared this article yet.")
+        console.print("Run `bitecli fetch` to fill your buffered lessons.")
+        return
     
     db.mark_as_read(article['id'])
     

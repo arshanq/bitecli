@@ -1,6 +1,7 @@
 import requests
 import json
 from . import config
+from . import db
 
 SYSTEM_PROMPT = """You are an expert technical educator. 
 Summarize the provided technical article or research topic into a short, 'bite-sized' educational markdown lesson that is visually appealing and easy to read on a terminal.
@@ -30,6 +31,50 @@ def generate_summary(article_title: str, article_content: str, article_url: str)
             return f"Error: Unsupported provider '{provider}'"
     except Exception as e:
         return f"Error summarizing content: {str(e)}"
+
+def fill_summary_buffer(console=None, force=False):
+    """
+    Checks how many buffered summaries exist. If below the limit, 
+    fetches unsummarized articles and generates summaries for them 
+    up to the limit.
+    """
+    conf = config.load_config()
+    limit = conf.get("max_buffered_summaries", 7)
+    
+    # Are we already full?
+    stats = db.get_stats()
+    buffered = stats.get('buffered', 0)
+    
+    if buffered >= limit and not force:
+        return 0
+        
+    needed = limit - buffered
+    articles_to_summarize = db.get_unsummarized_articles(needed)
+    
+    if not articles_to_summarize:
+        return 0
+        
+    count = 0
+    for article in articles_to_summarize:
+        if console:
+            console.print(f"[dim]Background buffering summary for: {article['title']}[/]")
+            
+        summary = generate_summary(
+            article_title=article['title'],
+            article_content=article['content'],
+            article_url=article['url']
+        )
+        
+        # Only save if we got a real summary (not an error string lacking API key)
+        if not summary.startswith("Error"):
+            db.save_summary(article['id'], summary)
+            count += 1
+        else:
+            if console:
+                console.print(f"[red]{summary}[/]")
+            break # Stop trying if API key is invalid
+            
+    return count
 
 def _call_gemini(api_key: str, prompt: str) -> str:
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"

@@ -29,9 +29,17 @@ def init_db():
             published TEXT,
             feed_name TEXT,
             is_read INTEGER DEFAULT 0,
+            summary TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    
+    # Simple migration: add summary column if it doesn't exist
+    try:
+        cursor.execute('ALTER TABLE articles ADD COLUMN summary TEXT')
+    except sqlite3.OperationalError:
+        pass # Column already exists
+        
     conn.commit()
     conn.close()
 
@@ -68,14 +76,14 @@ def store_article(article: Dict[str, Any]) -> bool:
     return inserted
 
 def get_unread_article() -> Optional[Dict[str, Any]]:
-    """Fetches a single unread article."""
+    """Fetches a single unread article that HAS a summary ready."""
     conn = get_connection()
     cursor = conn.cursor()
     
     cursor.execute('''
-        SELECT id, title, url, content, published, feed_name
+        SELECT id, title, url, content, published, feed_name, summary
         FROM articles
-        WHERE is_read = 0
+        WHERE is_read = 0 AND summary IS NOT NULL
         ORDER BY published DESC, created_at DESC
         LIMIT 1
     ''')
@@ -86,6 +94,31 @@ def get_unread_article() -> Optional[Dict[str, Any]]:
         return dict(row)
     return None
 
+def get_unsummarized_articles(limit: int) -> List[Dict[str, Any]]:
+    """Fetches a list of unread articles that DO NOT have a summary yet."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT id, title, url, content, published, feed_name
+        FROM articles
+        WHERE is_read = 0 AND summary IS NULL
+        ORDER BY published DESC, created_at DESC
+        LIMIT ?
+    ''', (limit,))
+    rows = cursor.fetchall()
+    conn.close()
+    
+    return [dict(row) for row in rows]
+
+def save_summary(article_id: str, summary: str):
+    """Saves a generated summary to an article."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE articles SET summary = ? WHERE id = ?', (summary, article_id))
+    conn.commit()
+    conn.close()
+
 def mark_as_read(article_id: str):
     """Marks an article as read."""
     conn = get_connection()
@@ -95,7 +128,7 @@ def mark_as_read(article_id: str):
     conn.close()
 
 def get_stats() -> Dict[str, int]:
-    """Returns counts of total, read, and unread articles."""
+    """Returns counts of total, read, unread, buffered articles."""
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT COUNT(*) FROM articles')
@@ -106,6 +139,10 @@ def get_stats() -> Dict[str, int]:
     
     cursor.execute('SELECT COUNT(*) FROM articles WHERE is_read = 1')
     read = cursor.fetchone()[0]
+    
+    cursor.execute('SELECT COUNT(*) FROM articles WHERE is_read = 0 AND summary IS NOT NULL')
+    buffered = cursor.fetchone()[0]
+    
     conn.close()
     
-    return {'total': total, 'unread': unread, 'read': read}
+    return {'total': total, 'unread': unread, 'read': read, 'buffered': buffered}

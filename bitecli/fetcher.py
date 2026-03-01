@@ -1,8 +1,9 @@
 import feedparser
 from . import db
 from . import config
+from . import llm
 
-def fetch_feeds() -> int:
+def fetch_feeds(console=None) -> int:
     """
     Fetches all configured feeds and stores new articles in the database.
     Returns the number of new articles inserted.
@@ -51,5 +52,8 @@ def fetch_feeds() -> int:
         except Exception as e:
             # We silently ignore errors per feed, CLI will handle broad reporting
             pass
+            
+    # After fetching new articles, fill up the LLM summary buffer
+    llm.fill_summary_buffer(console=console)
             
     return new_articles_count
