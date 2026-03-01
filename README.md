@@ -1,5 +1,7 @@
 # BiteCLI - Your Terminal Educator
 
+![BiteCLI Screenshot](BiteCliScreenshot.png)
+
 BiteCLI is a beautifully crafted command-line tool that brings bite-sized educational content to your terminal every time you open it. It aggregates content from top engineering blogs and AI research feeds, summarizes them into a 200-300 word lesson using an LLM of your choice (Gemini, OpenAI, Claude, Perplexity), and presents it elegantly using `rich`. It features a smart tracking system so you never read the same lesson twice.
 
 ## Requirements
