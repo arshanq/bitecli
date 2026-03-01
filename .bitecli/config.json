@@ -1,0 +1,27 @@
+{
+    "llm_provider": "gemini",
+    "api_keys": {
+        "gemini": "",
+        "openai": "",
+        "claude": "",
+        "perplexity": ""
+    },
+    "feeds": [
+        {
+            "name": "Berkeley AIR",
+            "url": "https://bair.berkeley.edu/blog/feed.xml"
+        },
+        {
+            "name": "OpenAI Blog",
+            "url": "https://openai.com/blog/rss.xml"
+        },
+        {
+            "name": "GitHub Engineering",
+            "url": "https://github.blog/category/engineering/feed/"
+        },
+        {
+            "name": "Netflix Tech",
+            "url": "https://netflixtechblog.com/feed"
+        }
+    ]
+}

@@ -1,0 +1,2 @@
+[console_scripts]
+bitecli = bitecli.cli:main

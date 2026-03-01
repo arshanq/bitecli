@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: bitecli
+Version: 0.1.0
+Summary: A bite-sized educational CLI tool
+Author-email: Arshaq <user@example.com>
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: rich
+Requires-Dist: feedparser
+Requires-Dist: requests
