@@ -45,8 +45,11 @@ CRON_CMD="0 10 * * * $CLI_BIN fetch >/dev/null 2>&1"
 if crontab -l 2>/dev/null | grep -q "$CLI_BIN fetch"; then
     echo "✅ Cron job for auto-fetching already exists."
 else
-    echo "⏱️ Setting up daily cron job for background fetch..."
-    (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab - || echo "⚠️ Could not set up cron job. You might need to add it manually."
+    if ! (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab - ; then
+        echo "⚠️ Could not set up cron job automatically (permissions issues)."
+        echo "   Please run this command manually to configure the daily auto-fetch:"
+        echo "   (crontab -l 2>/dev/null; echo \"$CRON_CMD\") | crontab -"
+    fi
     echo "   (To change the schedule to weekly, run 'crontab -e' and change '0 10 * * *' to '0 0 * * 0')"
 fi
 
