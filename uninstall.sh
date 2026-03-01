@@ -42,3 +42,10 @@ fi
 
 echo ""
 echo "🎉 Uninstallation Complete. All files, cache, cron jobs, and terminal hooks have been deleted."
+
+if command -v bitecli &> /dev/null; then
+    echo ""
+    echo "⚠️ WARNING: The 'bitecli' command is still available in your terminal."
+    echo "   This usually means you manually installed it globally with pip or pipx."
+    echo "   To completely remove it, run: pip uninstall -y bitecli"
+fi
