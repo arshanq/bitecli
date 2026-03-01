@@ -22,6 +22,15 @@ chmod +x install.sh
 
 *(If you prefer manual setup, you can still install via `pip install .` and configure hooks/cron yourself).*
 
+### Uninstallation
+
+If you ever want to remove BiteCLI, simply run the included uninstall script to clean up the environment, database, and cron job:
+
+```bash
+chmod +x uninstall.sh
+./uninstall.sh
+```
+
 ## Configuration (API Keys & Providers)
 
 Before you fetch or read content, configure your LLM provider. By default, it uses **Google Gemini**, but you can easily switch.
