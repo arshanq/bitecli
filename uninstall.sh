@@ -32,14 +32,13 @@ else
     RC_FILE="$HOME/.profile"
 fi
 
-echo ""
-echo "⚠️ ALMOST DONE!"
-echo "Please manually remove the BiteCLI hook from your $RC_FILE if you added it."
-echo "Simply open the file and delete the lines that look like this:"
-echo "-----------------------------------"
-echo "# BiteCLI Terminal Hook"
-echo "~/.bitecli/venv/bin/bitecli serve --hook"
-echo "-----------------------------------"
-echo ""
+if grep -q "bitecli serve --hook" "$RC_FILE" 2>/dev/null; then
+    echo "🗑️ Removing BiteCLI hook from $RC_FILE..."
+    grep -v "# BiteCLI Terminal Hook" "$RC_FILE" | grep -v "bitecli serve --hook" > "${RC_FILE}.tmp" && mv "${RC_FILE}.tmp" "$RC_FILE"
+    echo "✅ Hook removed."
+else
+    echo "✅ No hook found in $RC_FILE."
+fi
 
-echo "🎉 Uninstallation Complete. All files and cache have been deleted."
+echo ""
+echo "🎉 Uninstallation Complete. All files, cache, cron jobs, and terminal hooks have been deleted."
