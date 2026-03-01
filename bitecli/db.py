@@ -2,7 +2,7 @@ import sqlite3
 import os
 import uuid
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 def get_db_path():
     """Returns the path to the sqlite database in the user's config directory."""
