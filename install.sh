@@ -47,6 +47,7 @@ if crontab -l 2>/dev/null | grep -q "$CLI_BIN fetch"; then
 else
     echo "⏱️ Setting up daily cron job for background fetch..."
     (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab - || echo "⚠️ Could not set up cron job. You might need to add it manually."
+    echo "   (To change the schedule to weekly, run 'crontab -e' and change '0 10 * * *' to '0 0 * * 0')"
 fi
 
 # 4. Perform the initial layout and fetch
